@@ -1,0 +1,436 @@
+body {
+    background-color: black;
+    /* color with other icon #141414 */
+    width: 100%;
+    height: 100%;
+    color: white;
+    font-family: 'Lato', sans-serif;
+    overflow: auto;
+    font-size: 16px;
+    min-width: 350px;
+}
+
+main {
+    margin: 3em auto 1em;
+    height: 100%;
+    width: 70%;
+}
+
+#logoContainer {
+    margin: 20px;
+    display: inline-block;
+    text-align: center;
+}
+
+.logoLink:link,
+.logoLink:visited,
+.logoLink:hover,
+.logoLink:active {
+    color: inherit;
+}
+
+.logo {
+    width: 75px;
+}
+
+.logoName {
+    margin-top: -15px;
+}
+
+.logoTitleMid {
+    color: #FD4E02;
+}
+
+/*****************************/
+/**********Loader*************/
+/*****************************/
+
+.loading {
+    opacity: 0;
+    z-index: -10
+}
+
+.circleLoad {
+    position: absolute;
+    width: 75px;
+    height: 77px;
+    border-radius: 100%;
+    top: 45%;
+    left: calc(50% - 37.5px);
+}
+
+.circle {
+    width: 100%;
+    height: 100%;
+    position: absolute;
+}
+
+.circle .inner {
+    width: 100%;
+    height: 100%;
+    border-radius: 100%;
+    border: 5px solid grey;
+    border-right: none;
+    border-top: none;
+    background-clip: padding;
+    box-shadow: inset 0px 0px 10px #FD4E02;
+}
+
+@-webkit-keyframes spin {
+    from {
+        -webkit-transform: rotate(0deg);
+        transform: rotate(0deg);
+    }
+
+    to {
+        -webkit-transform: rotate(360deg);
+        transform: rotate(360deg);
+    }
+}
+
+@keyframes spin {
+    from {
+        -webkit-transform: rotate(0deg);
+        transform: rotate(0deg);
+    }
+
+    to {
+        -webkit-transform: rotate(360deg);
+        transform: rotate(360deg);
+    }
+}
+
+.circle:nth-of-type(0) {
+    -webkit-transform: rotate(0deg);
+    transform: rotate(0deg);
+}
+
+.circle:nth-of-type(0) .inner {
+    -webkit-animation: spin 2s infinite linear;
+    animation: spin 2s infinite linear;
+}
+
+.circle:nth-of-type(1) {
+    -webkit-transform: rotate(70deg);
+    transform: rotate(70deg);
+}
+
+.circle:nth-of-type(1) .inner {
+    -webkit-animation: spin 2s infinite linear;
+    animation: spin 2s infinite linear;
+}
+
+.circle:nth-of-type(2) {
+    -webkit-transform: rotate(140deg);
+    transform: rotate(140deg);
+}
+
+.circle:nth-of-type(2) .inner {
+    -webkit-animation: spin 2s infinite linear;
+    animation: spin 2s infinite linear;
+}
+
+.demo {
+    -webkit-animation: spin 5s infinite linear;
+    animation: spin 5s infinite linear;
+}
+
+/*****************************/
+/**********End Loader*********/
+/*****************************/
+
+.loadingNow {
+    opacity: 1;
+    transition: opacity 0.3s;
+}
+
+.loadingDone {
+    transition: opacity 0.3s;
+}
+
+#searchBar {
+    position: absolute;
+    overflow: none;
+    width: 300px;
+    height: auto;
+    left: 50%;
+    top: 50%;
+    transform: translate(-50%, -50%);
+    text-align: center
+}
+
+#searchBar.searchBar--To-Top {
+    top: 7em;
+    transition: top 0.8s;
+}
+
+#searchBarBar {
+    width: 250px;
+    border: none;
+    background-color: inherit;
+    border-bottom: 1px solid #5c5c5c;
+    color: white;
+    height: 1.5em;
+    font-size: 2em;
+    transition: border-color 1s;
+    text-align: center;
+    transition: all 0.3s;
+}
+
+#searchBarBar:focus {
+    outline: none;
+    color: white;
+    border-color: #FD4E02;
+    transition: border-bottom 1s;
+    text-align: center;
+}
+
+.label-text {
+    position: absolute;
+    color: #9B9B9B;
+    cursor: text;
+    text-transform: uppercase;
+    transition: all 0.3s;
+    transform: translateY(-22px);
+    width: auto;
+    left: calc(50% - 55.5px);
+    z-index: -1000;
+}
+
+#searchBarBar:focus+.label-text {
+    color: #F0F0F0;
+    font-size: 13px;
+    transform: translateY(-74px);
+    left: calc(50% - 44.61px);
+}
+
+#searchBarBar:valid+.label-text {
+    font-size: 13px;
+    transform: translateY(-74px);
+    left: calc(50% - 44.61px);
+}
+
+#searchResults {
+    height: auto;
+    opacity: 0;
+    transition: opacity 1s;
+    overflow: auto;
+}
+
+#movieList {
+    display: flex;
+    flex-flow: row wrap;
+    justify-content: space-around;
+    list-style-type: none;
+}
+
+
+.movie__item {
+    flex-basis: 100px;
+    flex-grow: 1;
+    margin: 10px;
+    text-align: center;
+    padding: 10px;
+    border-radius: 10px;
+    transition: color, background, 0.8s;
+}
+
+.movie__item:hover {
+    background: #252525;
+    color: #FD4E02;
+    transition: color, background, 0.8s;
+}
+
+.movie__item-image {
+    height: 300px;
+    width: 200px;
+    border-radius: 10px;
+    box-shadow: 5px 5px 5px 1px black;
+}
+
+.movie__title {
+    margin: 20px 0 0 0;
+    font-weight: bold;
+    font-size: 1.1em;
+}
+
+#soundTrackContainer {
+    opacity: 0;
+    transition: opacity 1s;
+    display: none;
+}
+
+#soundTrackInfoContainer {
+    display: flex;
+    padding: 20px 0 50px 0;
+}
+
+.moviePicture-image-picture {
+    border-radius: 10px;
+    width: 150px;
+}
+
+.moviePicture-image-name {
+    text-align: center;
+}
+
+.youtubeVideoContainer {
+    width: 100%;
+    padding: 0px 0px 0 20px;
+    position:relative;
+}
+
+.youtubeVideoContainer iframe {
+    width: 100%;
+    height: 100%;
+}
+
+.videoInstructions{
+    height: 100%;
+    width: 100%;
+    position: absolute;
+    z-index: -10;
+    font-size: 1.5em;
+    text-transform: uppercase;
+    text-align: center;
+
+    display:flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.videoInstructions span{
+    display:inline;
+}
+
+#soundTrackList {
+    width: 100%;
+}
+
+.song__item {
+    margin: 5px 0;
+    padding: 10px;
+    overflow: auto;
+    border-radius: 10px;
+    position: relative;
+    display: flex;
+    justify-content: space-between;
+    transition: color, background, ease-in-out 0.5s;
+}
+
+.trackLine {
+    width: 90%;
+    border-top: none;
+    border-right: none;
+    border-left: none;
+    border-color: #252525
+}
+
+.song__item:last-child {
+    border-bottom: none;
+}
+
+.song__item:hover {
+    background: #252525;
+    color: #FD4E02;
+    transition: color, background, ease-in-out 0.5s;
+}
+
+.song__title {
+    display: inline-block;
+    align-self: flex-start;
+    width: 80%
+}
+
+.song__length {
+    display: inline-block;
+    align-self: flex-end
+}
+
+#noSoundTrackContainer{
+    margin-top:100px;
+    text-align:center;
+    width:80%;
+    margin: 100px auto 20px;
+    opacity:0;
+    transition: opacity 1s; 
+}
+
+#noSoundTrackContainer p{
+    text-transform:uppercase;
+    font-size:1.5em;
+}
+
+#noSoundTrackContainer p>span{
+    font-size:0.8em;
+    font-style: italic;
+    color: #FD4E02
+}
+
+#noSoundTrack {
+    margin:20px auto;
+    overflow: none;
+    width:500px;
+    height:300px;
+}
+
+@media only screen and (max-width: 800px) {
+    #moviePicture-image {
+        display: none;
+    }
+
+    #soundTrackInfoContainer {
+        padding-bottom: 20px;
+    }
+
+    .youtubeVideoContainer {
+        padding: 0 0 0 0;
+    }
+
+    .youtubeVideoContainer iframe {
+        height: 300px
+    }
+
+    #noSoundTrack{
+        margin:20px auto;
+        width:100%;
+        height:250px;
+    }
+}
+
+@media only screen and (max-width: 350px) {
+    .logoLink {
+        display: block;
+        text-align: center;
+    }
+
+    #searchBar {
+        margin-top:50px;
+        width: auto;
+    }
+
+    #searchResults, #soundTrackContainer, #noSoundTrackContainer{
+        margin-top:70px;
+    }
+    #moviePicture-image {
+        display: none;
+    }
+
+    #soundTrackInfoContainer {
+        padding-bottom: 20px;
+    }
+
+    .youtubeVideoContainer {
+        padding: 0 0 0 0;
+    }
+
+    .youtubeVideoContainer iframe {
+        height: 150px
+    }
+
+    #noSoundTrack{
+        margin:20px auto;
+        width:100%;
+        height:200px;
+    }
+}
