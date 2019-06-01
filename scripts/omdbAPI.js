@@ -45,27 +45,26 @@ function getMovies(omdbMovie) {
                 searchResults.style.display = 'block';
             }, 1000);
 
-            omdbMovie.Search.forEach(function(movie,index) {
+            omdbMovie.Search.forEach(async function(movie,index) {
                 // SEARCH INDIVIDUAL FULL
                 let individualMovie = `http://www.omdbapi.com/?i=${movie.imdbID}&plot=full&apikey=${omdb_api_key}`;
-                get(individualMovie)
-                    .then((response)=>{
-                        const load = document.getElementById('loadingIcon');
+                let response = await get(individualMovie);
+                
+                const load = document.getElementById('loadingIcon');
 
-                        if(load.classList.value.indexOf('loadingNow') == -1 ){
-                            load.classList.add('loadingNow');
-                        } else {
-                            document.getElementsByClassName('loadingNow')[0].style.opacity = 1;
-                        }
+                if(load.classList.value.indexOf('loadingNow') == -1 ){
+                    load.classList.add('loadingNow');
+                } else {
+                    document.getElementsByClassName('loadingNow')[0].style.opacity = 1;
+                }
 
-                        searchInput.parentElement.classList.add('searchBar--To-Top');
+                searchInput.parentElement.classList.add('searchBar--To-Top');
 
-                        setTimeout(function(){
-                            getSingleMovie(response,index);
-                            document.getElementsByClassName('loadingNow')[0].style.opacity = 0;
-                            searchResults.style.opacity = 1;
-                        }, 1500);
-                    });
+                setTimeout(function(){
+                    getSingleMovie(response,index);
+                    document.getElementsByClassName('loadingNow')[0].style.opacity = 0;
+                    searchResults.style.opacity = 1;
+                }, 600);
             });
         }
     }
@@ -93,7 +92,7 @@ async function getSingleMovie(movie, index){
             }    
 
             movieItems = `
-            <li class="movie__item" id="movie${index}" data-year="${movie.Year}">
+            <li class="movie__item" id="movie${index}" value="${movie.Year}">
                 <img class="movie__item-image" src="${moviePoster}">
                     <figcaption class="movie__title">${movie.Title}</figcaption>
             </li>`; 
@@ -103,18 +102,18 @@ async function getSingleMovie(movie, index){
 
             // event listener for each movie
             Array.from(document.getElementsByClassName('movie__item')).forEach(item => {
-                const mYear = item.querySelectorAll('[data-year]');
-                const mTitle = item.getElementsByClassName('movie__title')[0];
-                console.log(mYear.value);
-                item.addEventListener('click', function(){
+                const mYear = item.value,
+                    mTitle = item.getElementsByClassName('movie__title')[0].innerHTML,
+                    mPoster = item.getElementsByClassName('movie__item-image')[0].src;
+
+                item.addEventListener('click', async () => {
                     let wikiURL = `https://en.wikipedia.org/w/api.php?action=query&prop=revisions&rvprop=content&origin=*&format=json&formatversion=2&titles=${mTitle}`;
-                    get(wikiURL)
-                    .then((response) =>  {
-                        if(moviePressed == false){
-                            moviePressed = true;
-                            getAlbum(response, wikiURL, movie.Year, mTitle, moviePoster);
-                        }
-                    });
+                    let response = await get(wikiURL);
+                    
+                    if(moviePressed == false){
+                        moviePressed = true;
+                        getAlbum(response, wikiURL, mYear, mTitle, mPoster);
+                    }
                 });
             });
         }
