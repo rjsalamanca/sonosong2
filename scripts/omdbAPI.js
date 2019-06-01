@@ -71,74 +71,69 @@ function getMovies(omdbMovie) {
     }
 }
 
-function getSingleMovie(movie, index){
+async function getSingleMovie(movie, index){
     if(movie.Runtime != 'N/A'){
         const movieLength = Number(movie.Runtime.match(/\d+/g)[0]);
 
         if(movieLength != null && movieLength > 60){
 
-            // creating elements
-            const movieItem = document.createElement('li'),
-                moviePoster = document.createElement('img'),
-                movieTitle = document.createElement('figcaption'),
-                movieYear = document.createElement('figcaption');
-
-            // add classes for styling purposes
-            movieItem.classList.add('movie__item');
-            movieItem.setAttribute('id',`movie${index}`)
-            moviePoster.classList.add('movie__item-image');
-            movieTitle.classList.add('movie__title');
-            movieYear.classList.add('movie__year');
-
-            // updating image and h3
-            movieTitle.textContent = movie.Title;
-            movieYear.textContent = movie.Year;
+            let movieItems = ``,
+                moviePoster = ``;
 
             // sets movie poster to 404 image if none is found
             if(movie.Poster == 'N/A'){
-                moviePoster.src = './images/404Poster.jpg'
+                moviePoster = './images/404Poster.jpg'
             } else {
-                fetch(movie.Poster)
-                    .then(response=>{
-                        moviePoster.src = response.url
-                    }).catch(moviePoster.src = './images/404Poster.jpg')
+                try{
+                    let getPoster = await fetch(movie.Poster);
+                    moviePoster = await getPoster.url;
+                } catch {
+                    moviePoster = './images/404Poster.jpg'
+                }
             }    
 
-            // appending items
-            movieItem.append(moviePoster, movieTitle);
-            movieList.append(movieItem);
+            movieItems = `
+            <li class="movie__item" id="movie${index}" data-year="${movie.Year}">
+                <img class="movie__item-image" src="${moviePoster}">
+                    <figcaption class="movie__title">${movie.Title}</figcaption>
+            </li>`; 
 
+            movieList.innerHTML += movieItems;
             searchPressed = false;
 
             // event listener for each movie
-            movieItem.addEventListener('click',function(e){
-                let wikiURL = `https://en.wikipedia.org/w/api.php?action=query&prop=revisions&rvprop=content&origin=*&format=json&formatversion=2&titles=${movieTitle.textContent}`;
-                get(wikiURL)
-                .then((response) =>  {
-                    if(moviePressed == false){
-                        moviePressed = true;
-                        getAlbum(response, wikiURL, movie.Year, movie.Title, moviePoster.src);
-                    }
+            Array.from(document.getElementsByClassName('movie__item')).forEach(item => {
+                const mYear = item.querySelectorAll('[data-year]');
+                const mTitle = item.getElementsByClassName('movie__title')[0];
+                console.log(mYear.value);
+                item.addEventListener('click', function(){
+                    let wikiURL = `https://en.wikipedia.org/w/api.php?action=query&prop=revisions&rvprop=content&origin=*&format=json&formatversion=2&titles=${mTitle}`;
+                    get(wikiURL)
+                    .then((response) =>  {
+                        if(moviePressed == false){
+                            moviePressed = true;
+                            getAlbum(response, wikiURL, movie.Year, mTitle, moviePoster);
+                        }
+                    });
                 });
             });
         }
     }
 }
 
-searchInput.addEventListener('keypress', function(e) {
+searchInput.addEventListener('keypress', async function(e) {
     let key = e.which || e.keyCode;
 
     if (key === 13) {
         let search = this.value;
         URL = `http://www.omdbapi.com/?s=${search}&plot=full&apikey=${omdb_api_key}`;
 
-        get(URL)
-        .then((response) =>  {
-            moviePressed = false;
-            if(searchPressed == false){
-                searchPressed = true;
-                getMovies(response);
-            }
-        });
+        let response = await get(URL);
+        moviePressed = false;
+
+        if(searchPressed == false){
+            searchPressed = true;
+            getMovies(response);
+        }
     }
 });
