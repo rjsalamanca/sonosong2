@@ -1,85 +1,61 @@
 'use strict';
 
 const api_key = 'AIzaSyB9WzlCfQKAWzLTqAsrcepelEEUT4b8NPk',
-    soundtrackList = document.getElementById('soundTrackList'),
     searchResults = document.getElementById('searchResults'),
-    load = document.getElementById('loadingIcon'),
-    moviePicture = document.getElementById('moviePicture-image');
+    load = document.getElementById('loadingIcon');
 
 let searchPageCount = 0,
     searchingPage = false;
 
 function addTrackList(listOfTracks, movieTitle, moviePoster) {
     const soundTrackContainer = document.getElementById('soundTrackContainer'),
-        moviePic = document.createElement('img');
+        moviePicture = document.getElementById('moviePicture-image');
 
-    let moviePicName = document.createElement('div'),
-        count = 1;
-
-    // Adds movie poster and name to the page with the soundtrack list and youtube video
-    moviePic.src = moviePoster;
-    moviePic.classList.add('moviePicture-image-picture');
-    moviePicName.textContent = movieTitle;
-    moviePicName.classList.add('moviePicture-image-name');
-    moviePicture.append(moviePic,moviePicName);
+    moviePicture.innerHTML = `
+        <img src=${moviePoster} class='moviePicture-image-picture'/>
+        <div class='moviePicture-image-name'>${movieTitle}</div>
+    `;
 
     setTimeout(() => {
         soundTrackContainer.style.transition = 'opacity 1s';
         soundTrackContainer.style.opacity = '1';
     },100);
 
-    Object.keys(listOfTracks).forEach(function (key) {
+    Object.keys(listOfTracks).forEach(async function (key,ind) {
+        const soundtrackList = document.getElementById('soundTrackList');
 
-        // Creating list items for songs
-        const makeClassItem = document.createElement('li'),
-            trackItem = document.createElement('span'),
-            timeItem = document.createElement('span'),
-            horizontalLine = document.createElement('hr');
+        let singleTrack = `
+            <li class="song__item" id="track${ind+1}">
+                <span class="song__title">${ind+1}. ${listOfTracks[key].track_name}</span>
+                <span class="song__length">${listOfTracks[key].length}</span>
+            </li>
+            <hr class="trackLine">`;
 
-        makeClassItem.classList.add('song__item');
-
-        trackItem.classList.add('song__title');
-        trackItem.textContent = `${count}.     ` + listOfTracks[key].track_name;
-        count += 1;
-
-        timeItem.classList.add('song__length');
-        timeItem.textContent = listOfTracks[key].length;
-
-        horizontalLine.classList.add('trackLine');
-
-        makeClassItem.append(trackItem, timeItem);
-        soundtrackList.append(makeClassItem,horizontalLine);
+        soundtrackList.innerHTML += singleTrack;
 
         moviePressed = false;
 
-        makeClassItem.addEventListener('click', function (e) {
-            e.preventDefault();
-            let wordInput = listOfTracks[key].track_name + ' ' + movieTitle,
-                ytURL = `https://www.googleapis.com/youtube/v3/search?part=snippet&maxResults=25&q=${wordInput}&key=${api_key}`
+        await setTimeout(()=>{
+            document.getElementById(`track${ind+1}`).addEventListener('click', async function (e) {
+                e.preventDefault();
+                
+                let wordInput = `${listOfTracks[key].track_name} ${movieTitle}`,
+                    ytURL = `https://www.googleapis.com/youtube/v3/search?part=snippet&maxResults=25&q=${wordInput}&key=${api_key}`,
+                    bars = `
+                        <span id="bars">
+                            <span class="bar"></span>
+                            <span class="bar"></span>
+                            <span class="bar"></span>
+                        </span>`;
 
-            const findBars = document.getElementById('bars'),
-                bars = document.createElement('span');
+                if(document.getElementById('bars') !=  null) document.getElementById('bars').remove();
 
-            if(findBars !=  null){
-                findBars.remove();
-            }
+                this.children[0].innerHTML += bars;
 
-            bars.setAttribute('id','bars')
-
-            for(var i = 0; i<3; i++){
-                let bar = document.createElement('span');
-                bar.classList.add('bar')
-                bars.append(bar)   
-            }
-
-            makeClassItem.childNodes[0].append(bars)
-
-            get(ytURL)
-                .then((response) => {
-                    //some functions here
-                    getVideoId(response);
-                });
-        });
+                let response = await get(ytURL);
+                getVideoId(response);
+            });
+        },1);
     });
 }
 
@@ -142,57 +118,42 @@ function getAlbum(wikiObject, wikiURL, movieYear, movieTitle, moviePoster) {
 
     // Function to catch errors and change wikiURL
     // catchError scope is only for getAlbum
-    function catchError() {
+    async function catchError() {
+        let rr = 
+            `<div id="noSoundTrackContainer">
+                <p class="noSoundTitle">
+                    Never gonna give you a soundtrack 
+                    <br><br> 
+                    <span>(No soundtrack found)</span>
+                </p>
+                <iframe
+                    id="noSoundTrack" src="https://www.youtube.com/embed/dQw4w9WgXcQ?autoplay=1&amp;loop=1&amp;playlist=dQw4w9WgXcQ"
+                    frameborder="0" allow="accelerometer; autoplay; encrypted-media; gyroscope; picture-in-picture"
+                    allowfullscreen="">
+                </iframe>
+            </div>`;
+
         wikiURL = wikiURL + searchURLEnding[searchPageCount];
-
-        //////////////////
-        //  RICK ROLL   //
-        //////////////////
-
-        const body = document.getElementById('bodyclass'),
-            noSoundTrackContainer = document.createElement('div'),
-            noSoundTitle = document.createElement('p'),
-            noSoundTrack = document.createElement('iframe');
-
-        noSoundTrackContainer.setAttribute('id', 'noSoundTrackContainer');
-        noSoundTitle.classList.add('noSoundTitle');
-        noSoundTitle.innerHTML = 'Never gonna give you a soundtrack <br><br> <span>(No soundtrack found)</span>';
-
-        noSoundTrack.setAttribute('id', 'noSoundTrack');
-        noSoundTrack.src = 'https://www.youtube.com/embed/dQw4w9WgXcQ?autoplay=1&loop=1&playlist=dQw4w9WgXcQ';
-        noSoundTrack.setAttribute('frameborder',0);
-        noSoundTrack.setAttribute('allow','accelerometer; autoplay; encrypted-media; gyroscope; picture-in-picture');
-        noSoundTrack.setAttribute('allowfullscreen','');
-
-        noSoundTrackContainer.append(noSoundTitle, noSoundTrack);
-
-        //////////////////
-        //  RICK ROLL   //
-        //////////////////
         
-        get(wikiURL)
-            .then((response) => {
-                searchingPage = true;
-                getAlbum(response, wikiURL, movieYear, movieTitle, moviePoster);
-            })
-            .catch(err =>{
-                // RESET
-                searchingPage = false;
-                searchPageCount = 0;
+        try{
+            let response = await get(wikiURL);
+            searchingPage = true;
+            getAlbum(response, wikiURL, movieYear, movieTitle, moviePoster);
+        }catch(err){
+            // RESET
+            searchingPage = false;
+            searchPageCount = 0;
 
-                // Removes loading and sets search results to none
+            // Removes loading and sets search results to none
+            setTimeout(()=> {
                 searchResults.style.opacity = 0;
-
-                // If no soundtrack available for movie appends error message
-                body.append(noSoundTrackContainer);
-
-                setTimeout(()=> {
-                    load.style.opacity = 0;
-                    searchResults.style.display = 'none';
-
-                    noSoundTrackContainer.style.transition = 'opacity 1s';
-                    noSoundTrackContainer.style.opacity = 1;
-                }, 1000);
-            });
+                load.style.opacity = 0;
+                searchResults.style.display = 'none';
+                
+                document.getElementById('bodyclass').innerHTML += rr;
+                document.getElementById('noSoundTrackContainer').style.transition = 'opacity 1s';
+                document.getElementById('noSoundTrackContainer').style.opacity = 1;
+            }, 800);
+        };
     }
 }
