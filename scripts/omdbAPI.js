@@ -1,18 +1,17 @@
 'use strict';
 
 const omdb_api_key = '414f1f39',
-    searchInput = document.getElementById('searchBarBar'),
-    movieItem = document.getElementsByClassName('movie__item'),
-    soundTrackContainer = document.getElementById('soundTrackContainer');
+    searchInput = document.getElementById('searchBarBar');
 
-let URL = '',
-    searchPressed = false,
+let searchPressed = false,
     moviePressed = false;
 
 function getMovies(omdbMovie) {
     const searchResults = document.getElementById('searchResults'),
         movieList = document.getElementById('movieList'),
-        error = document.getElementById('noSoundTrackContainer');
+        error = document.getElementById('noSoundTrackContainer'),    
+        soundTrackContainer = document.getElementById('soundTrackContainer');
+
     // Resets the soundtrack container elements
 
     document.getElementsByClassName('youtubeVideoContainer')[0].childNodes[3].src = '';
@@ -125,7 +124,7 @@ searchInput.addEventListener('keypress', async function(e) {
 
     if (key === 13) {
         let search = this.value;
-        URL = `http://www.omdbapi.com/?s=${search}&plot=full&apikey=${omdb_api_key}`;
+        let URL = `http://www.omdbapi.com/?s=${search}&plot=full&apikey=${omdb_api_key}`;
 
         let response = await get(URL);
         moviePressed = false;
