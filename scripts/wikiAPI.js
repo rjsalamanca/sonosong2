@@ -2,23 +2,20 @@
 
 const api_key = 'AIzaSyB9WzlCfQKAWzLTqAsrcepelEEUT4b8NPk',
     searchResults = document.getElementById('searchResults'),
-    load = document.getElementById('loadingIcon');
+    load = document.getElementById('loadingIcon'),
+    soundTrackContainer = document.getElementById('soundTrackContainer');
 
 let searchPageCount = 0,
     searchingPage = false;
 
 function addTrackList(listOfTracks, movieTitle, moviePoster) {
-    const soundTrackContainer = document.getElementById('soundTrackContainer'),
-        moviePicture = document.getElementById('moviePicture-image');
-
-    moviePicture.innerHTML = `
+    document.getElementById('moviePicture-image').innerHTML = `
         <img src=${moviePoster} class='moviePicture-image-picture'/>
         <div class='moviePicture-image-name'>${movieTitle}</div>
     `;
 
     setTimeout(() => {
-        soundTrackContainer.style.transition = 'opacity 1s';
-        soundTrackContainer.style.opacity = '1';
+        soundTrackContainer.style = 'transition: opacity 1s; opacity: 1; display: block';
     },100);
 
     Object.keys(listOfTracks).forEach(async function (key,ind) {
@@ -64,61 +61,9 @@ function getAlbum(wikiObject, wikiURL, movieYear, movieTitle, moviePoster) {
     // array for recursion to search specific terms
     const searchURLEnding = ['%20%28film%29', '%20%20%28' + movieYear + '%20film%29', '%20%28soundtrack%29', '%3A%20Original%20Motion%20Picture%20Soundtrack','%3A%20Music%20from%20the%20Motion%20Picture','%3A%20The%20Motion%20Picture%20Soundtrack','%3A%20Highlights%20from%20the%20Motion%20Picture%20Soundtrack'];
 
-    // Going through the pages which is wikiURL + searchURLEnding
-    if (searchingPage) {
-        console.log('LOADING')
-        load.style.opacity = 1;
-        searchResults.style.opacity = 0;
-        searchPageCount++;
-        wikiURL = wikiURL.slice(0, wikiURL.length - searchURLEnding[searchPageCount - 1].length);
-    }
-
-    if (!wikiObject.query.pages[0].missing) {
-        const content = wikiObject.query.pages[0].revisions[0].content;
-
-        let tracks = '',
-            tracksSongLength = '',
-            albumTracks = {};
-
-        if (content.includes('title1')) {
-            // Regex for getting song names and lengths
-            tracks = content.match(/title\d+.+?(?=\n)/g).map((track) => {
-                if(track.indexOf('[') == -1){
-                    return track.replace(/title\d+\s*= /g, '')
-                } else {
-                    return track.replace(/title\d+\s*= \[+|\]+/g, '')
-                }
-            });
-
-            tracksSongLength = content.match(/length\d+.+?(?=\n)/g).map((songLength) => songLength.replace(/length\d+\s*= /g, ''));
-
-            for (let i = 0; i < tracks.length; i++) {
-                albumTracks[`title${i + 1}`] = { 'track_name': tracks[i], 'length': tracksSongLength[i] }
-            }
-
-            // RESET
-            searchingPage = false;
-            searchPageCount = 0;
-            searchResults.style.opacity = 0;
-
-            setTimeout(()=>{
-                load.style.opacity = 0;
-                soundTrackContainer.style.display = 'block';
-                searchResults.style.display = 'none';
-
-                addTrackList(albumTracks, movieTitle, moviePoster);
-            }, 1000);
-
-        } else {
-            catchError();
-        }
-    } else {
-        catchError();
-    }
-
     // Function to catch errors and change wikiURL
     // catchError scope is only for getAlbum
-    async function catchError() {
+    let catchError = async function () {
         let rr = 
             `<div id="noSoundTrackContainer">
                 <p class="noSoundTitle">
@@ -146,14 +91,53 @@ function getAlbum(wikiObject, wikiURL, movieYear, movieTitle, moviePoster) {
 
             // Removes loading and sets search results to none
             setTimeout(()=> {
-                searchResults.style.opacity = 0;
+                searchResults.style = `opacity: 0; display: none;`;
                 load.style.opacity = 0;
-                searchResults.style.display = 'none';
                 
                 document.getElementById('bodyclass').innerHTML += rr;
-                document.getElementById('noSoundTrackContainer').style.transition = 'opacity 1s';
-                document.getElementById('noSoundTrackContainer').style.opacity = 1;
+                document.getElementById('noSoundTrackContainer').style = 'transition: opacity 1s; opacity:1;';
             }, 800);
         };
+    }
+
+    // Going through the pages which is wikiURL + searchURLEnding
+    if (searchingPage) {
+        console.log('LOADING')
+        load.style.opacity = 1;
+        searchResults.style.opacity = 0;
+        searchPageCount++;
+        wikiURL = wikiURL.slice(0, wikiURL.length - searchURLEnding[searchPageCount - 1].length);
+    }
+
+    if (!wikiObject.query.pages[0].missing) {
+        const content = wikiObject.query.pages[0].revisions[0].content;
+
+        let tracks = '',
+            tracksSongLength = '',
+            albumTracks = {};
+
+        if (content.includes('title1')) {
+            // Regex for getting song names and lengths
+            tracks = content.match(/title\d+.+?(?=\n)/g).map(track => track.indexOf('[') == -1 ? track.replace(/title\d+\s*= /g, '') : track.replace(/title\d+\s*= \[+|\]+/g, ''));
+            tracksSongLength = content.match(/length\d+.+?(?=\n)/g).map((songLength) => songLength.indexOf(`'`) == -1 ? songLength.replace(/length\d+\s*= /g, '') : songLength.replace(/length\d+\s*= \'+|\'+/g, ''));
+
+            //create an object for track
+            tracks.forEach((track,index) => albumTracks[`title${index + 1}`] = { 'track_name': tracks[index], 'length': tracksSongLength[index] });
+
+            // RESET
+            searchingPage = false;
+            searchPageCount = 0;
+            searchResults.style.opacity = 0;
+
+            load.style.opacity = 0;
+            soundTrackContainer.style.display = 'block';
+            searchResults.style.display = 'none';
+
+            addTrackList(albumTracks, movieTitle, moviePoster);
+        } else {
+            catchError();
+        }
+    } else {
+        catchError();
     }
 }
